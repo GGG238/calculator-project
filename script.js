@@ -7,12 +7,20 @@ for(let button of buttons){
 }
 
 let num1;
-let num2;1
-let indicator = -1;
+let num2;
+let indicator = 1;
 
 // ---------- display values ---------- //
 
 function displayValue(){
+    if(!display.textContent){
+        display.textContent = '0';
+        currentOperation.textContent = '';
+        display.style.cssText = 'background-image: none';
+        currentOperation.style.justifyContent = 'right';
+    }
+
+    if(display.textContent.length>10 && /\d/.test(+this.value) && indicator>0) return;
 
     if(!isNaN(+this.value) || this.value==='.'){
         addNumber(this.value);
@@ -21,7 +29,7 @@ function displayValue(){
     }else if(this.value === 'del'){
         if(currentOperation.textContent.includes('=')){
             clear();
-        }else if(display.textContent.split('').length===1){
+        }else if(display.textContent.split('').length===1 || indicator<0){
             display.textContent = '0';
         }else{
             let splitted = display.textContent.split('');
@@ -37,13 +45,13 @@ function displayValue(){
 
 function addNumber(num){
     if(num==='.' && display.textContent.includes('.')) return;
+    if(currentOperation.textContent.includes('=')) clear();
 
     if(display.textContent==='0' && num!==0 && num!=='.' || indicator<0){
         display.textContent = num;
         indicator = 1;
     }else{
         display.textContent += num;
-        //indicator = 1;
     }
 }
 
@@ -51,7 +59,7 @@ function addNumber(num){
 
 function doOperation(operation){
 
-    if(!currentOperation.textContent && operation!=='=' || currentOperation.textContent.includes('=')){
+    if((!currentOperation.textContent && operation!=='=') || (currentOperation.textContent.includes('=') && operation!=='=')){
         num1 = display.textContent;
         num2 = 0;
         
@@ -71,8 +79,21 @@ function doOperation(operation){
                         op==='%' ? `${(num1/100)*num2}` :
                         'ERROR!';
 
-        let shortResult = result.split('').slice(0,12);
-        display.textContent = shortResult.join('');
+        if(result==='Infinity' || result==='ERROR' || isNaN(result)){
+            clear();
+            display.textContent = '';
+            currentOperation.textContent = 'BOOM!'
+            display.style.cssText = 'background-image: url(./img/boom.png); background-repeat: no-repeat; background-position: center; background-size: 94px;';
+            currentOperation.style.justifyContent = 'center';
+
+        }else{
+            let shortResult = result.split('').slice(0,12);
+
+            display.textContent = shortResult.join('');
+            indicator = -1;
+        }
+        
+        
     }else if(!currentOperation.textContent.includes('=') && operation!=='=' && indicator>0){
         let op = currentOperation.textContent.split('').pop();
         num1 = currentOperation.textContent.split(' ').shift();
@@ -85,14 +106,25 @@ function doOperation(operation){
                         op==='%' ? `${(num1/100)*num2}` :
                         'ERROR!';
         
-        let shortResult = result.split('').slice(0,12).join('');
+        if(result==='Infinity' || result==='ERROR' || isNaN(result)){
+            clear();
+            display.textContent = '';
+            currentOperation.textContent = 'BOOM!'
+            display.style.cssText = 'background-image: url(./img/boom.png); background-repeat: no-repeat; background-position: center; background-size: 94px;';
+            currentOperation.style.justifyContent = 'center';
 
-        currentOperation.textContent = `${shortResult} ${operation}`
-        indicator = -1;
+        }else{
+            let shortResult = result.split('').slice(0,12).join('');
+
+            currentOperation.textContent = `${shortResult} ${operation}`;
+            indicator = -1;
+        }
     }
 
 
 }
+
+// ---------- Clear ---------- //
 
 function clear(){
     currentOperation.textContent = '';
@@ -102,9 +134,10 @@ function clear(){
 }
 
 // ---------- keyboard support ---------- //
+
 window.addEventListener('keydown', (event) => {
     event.preventDefault();
-    console.log(event.key);
+
     switch (event.key){
         case '1':
         case '2':
@@ -132,6 +165,14 @@ window.addEventListener('keydown', (event) => {
 });
 
 function displayKeyValue(val){
+    if(!display.textContent){
+        display.textContent = '0';
+        currentOperation.textContent = '';
+        display.style.cssText = 'background-image: none';
+        currentOperation.style.justifyContent = 'right';
+    }
+
+    if(display.textContent.length>10 && /\d/.test(+val) && indicator>0) return;
 
     if(/\d/.test(+val) || val==='.'){
         addNumber(val);
@@ -140,7 +181,7 @@ function displayKeyValue(val){
     }else if(val === 'Backspace'){
         if(currentOperation.textContent.includes('=')){
             clear();
-        }else if(display.textContent.split('').length===1){
+        }else if(display.textContent.split('').length===1 || indicator<0){
             display.textContent = '0';
         }else{
             let splitted = display.textContent.split('');
@@ -153,3 +194,4 @@ function displayKeyValue(val){
     }
 
 }
+

@@ -44,11 +44,6 @@ body{
     display: flex;
     align-items: center;
     justify-content: right;
-
-    /*background-image: url(./img/boom.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 94px;*/
 }
 
 #buttons{
